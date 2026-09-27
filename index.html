@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Graveyard of Dead Projects</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="logo">🪦</span>
+      <div>
+        <h1>Graveyard of Dead Projects</h1>
+        <p class="tagline">The speed camera for renewable project developers. 9 of 10 projects never get a grid connection. Learn from them.</p>
+      </div>
+    </div>
+    <div class="credits" title="One in, one out: every dead project you upload earns one check.">
+      <span id="credit-count">0</span> check credits
+    </div>
+  </header>
+
+  <nav>
+    <button class="tab active" data-view="map">Map</button>
+    <button class="tab" data-view="reasons">Failure reasons</button>
+    <button class="tab" data-view="upload">Bury a project <small>+1</small></button>
+    <button class="tab" data-view="check">Check new project <small>−1</small></button>
+  </nav>
+
+  <main>
+    <!-- MAP -->
+    <section id="view-map" class="view active">
+      <div id="map"></div>
+      <div class="legend">
+        <div><span class="sw red"></span>Grid blocked (click: why &amp; until when)</div>
+        <div><span class="sw yellow"></span>Capacity freeing up in 2–3 years (express interest)</div>
+        <div><span class="sw white"></span>No information</div>
+        <div><span class="dot"></span>Dead project</div>
+        <div class="muted">Yellow zones are demo data. Red zones are approximate.</div>
+      </div>
+    </section>
+
+    <!-- REASONS -->
+    <section id="view-reasons" class="view">
+      <div class="panel">
+        <input id="search" type="search" placeholder="Search failure reasons, e.g. substation, auction, municipality, insolvency…">
+        <div id="chips" class="chips"></div>
+        <div id="stats" class="stats"></div>
+        <div id="results" class="cards"></div>
+      </div>
+    </section>
+
+    <!-- UPLOAD -->
+    <section id="view-upload" class="view">
+      <div class="two-col">
+        <form id="upload-form" class="panel form">
+          <h2>Bury a dead project</h2>
+          <p class="muted">Upload one dead project to earn one check credit. Click the map to set the location.</p>
+          <label>Project name<input name="name" required placeholder="e.g. Solar park Musterdorf"></label>
+          <div class="row">
+            <label>Technology
+              <select name="tech"><option value="solar">Solar</option><option value="wind">Wind</option><option value="storage">Storage</option></select>
+            </label>
+            <label>Capacity (MW)<input name="mw" type="number" step="0.1" min="0" required value="20"></label>
+          </div>
+          <label>Grid operator<input name="operator" placeholder="e.g. Avacon"></label>
+          <fieldset>
+            <legend>Failure reasons (multiple allowed)</legend>
+            <div id="reason-boxes" class="boxes"></div>
+          </fieldset>
+          <div class="row">
+            <label>Status
+              <select name="status" id="status-select"></select>
+            </label>
+            <label>Year<input name="year" type="number" value="2026"></label>
+          </div>
+          <label>What happened?<textarea name="text" rows="3" placeholder="e.g. Grid operator refused connection, next free substation 25 km away"></textarea></label>
+          <div class="row">
+            <label>Latitude<input name="lat" type="number" step="0.0001" required></label>
+            <label>Longitude<input name="lng" type="number" step="0.0001" required></label>
+          </div>
+          <button type="submit" class="primary">Bury project and earn +1 credit</button>
+          <p id="upload-msg" class="msg"></p>
+        </form>
+        <div id="upload-map" class="mini-map"></div>
+      </div>
+    </section>
+
+    <!-- CHECK -->
+    <section id="view-check" class="view">
+      <div class="two-col">
+        <form id="check-form" class="panel form">
+          <h2>Check a new project</h2>
+          <p class="muted">One in, one out: each check costs one credit. Click the map to set the location.</p>
+          <div class="row">
+            <label>Technology
+              <select name="tech"><option value="solar">Solar</option><option value="wind">Wind</option><option value="storage">Storage</option></select>
+            </label>
+            <label>Capacity (MW)<input name="mw" type="number" step="0.1" min="0" required value="20"></label>
+          </div>
+          <label>Grid operator (optional)<input name="operator" placeholder="e.g. EWE Netz"></label>
+          <div class="row">
+            <label>Latitude<input name="lat" type="number" step="0.0001" required></label>
+            <label>Longitude<input name="lng" type="number" step="0.0001" required></label>
+          </div>
+          <button type="submit" class="primary">Run check (−1 credit)</button>
+          <div id="check-result"></div>
+        </form>
+        <div id="check-map" class="mini-map"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
