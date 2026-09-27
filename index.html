@@ -32,6 +32,7 @@
         <div class="layers">
           <div class="layers-title">Layers</div>
           <div class="layer-group">dvlp base data</div>
+          <label><input type="checkbox" id="sat-toggle"> Satellite imagery</label>
           <label class="off"><input type="checkbox" disabled> Protected areas</label>
           <label class="off"><input type="checkbox" disabled> Soil quality</label>
           <label class="off"><input type="checkbox" disabled> Substations</label>
@@ -63,6 +64,13 @@
                 <button type="button" class="small-btn" data-demo="0">① Risky site</button>
                 <button type="button" class="small-btn" data-demo="1">② Clear site</button>
                 <button type="button" class="small-btn ghost" onclick="resetDemo()">↺ Reset</button>
+                <details class="demo-setup"><summary>Set up demo sites</summary>
+                  <p class="muted">Turn on <b>Satellite imagery</b>, draw a free field with ✏️, then save it:</p>
+                  <button type="button" class="small-btn ghost" onclick="saveDemo(0)">📌 Save as demo ①</button>
+                  <button type="button" class="small-btn ghost" onclick="saveDemo(1)">📌 Save as demo ②</button>
+                  <button type="button" class="small-btn ghost" onclick="clearDemoSites()">Restore defaults</button>
+                  <p id="demo-coords" class="muted"></p>
+                </details>
               </div>
               <form id="check-form" class="form">
                 <label>New project<input name="pname" placeholder="e.g. Solar park Musterdorf"></label>

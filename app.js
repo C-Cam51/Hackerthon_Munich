@@ -18,9 +18,9 @@ const CONFIG = {
   // demo scenarios for the pitch: polygon corners [lat, lng]
   demos: [
     { name: "Solar park Speichersdorf Süd", tech: "solar", mw: 25, operator: "",
-      polygon: [[49.878, 11.765], [49.880, 11.792], [49.866, 11.796], [49.863, 11.770]] },   // next to failed Solarpark Haidenaab (2025)
-    { name: "Solar park Kempten Nord", tech: "solar", mw: 25, operator: "",
-      polygon: [[47.742, 10.300], [47.744, 10.326], [47.731, 10.330], [47.729, 10.303]] },   // no graves within 60 km
+      polygon: [[49.8552, 11.7485], [49.8555, 11.7555], [49.8510, 11.7560], [49.8507, 11.7490]] },   // open land SW of Speichersdorf, ~3 km from failed Solarpark Haidenaab (2025)
+    { name: "Solar park Ochsenfurter Gau", tech: "solar", mw: 25, operator: "",
+      polygon: [[49.6222, 10.0765], [49.6225, 10.0835], [49.6180, 10.0840], [49.6177, 10.0770]] },   // farmland between Aub and Ippesheim, no graves within 60 km
   ],
   triedHereKm: 10,      // "someone already tried here" if a dead project is this close
   stages: ["Site search", "Grid request", "Permitting", "Built", "Stopped"],
@@ -116,7 +116,12 @@ function redHtml(z) {
 
 // ---------- Map ----------
 const map = L.map("map", { zoomSnap: 0.5 }).fitBounds(CONFIG.mapBounds);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+const streetTiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+const satTiles = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Imagery &copy; Esri" });
+$("#sat-toggle").addEventListener("change", e => {
+  if (e.target.checked) { map.removeLayer(streetTiles); satTiles.addTo(map).bringToBack(); }
+  else { map.removeLayer(satTiles); streetTiles.addTo(map).bringToBack(); }
+});
 
 const POPUP = () => ({ maxWidth: Math.min(320, window.innerWidth - 90), autoPanPaddingTopLeft: L.point(window.innerWidth > 900 ? 270 : 20, 20), autoPanPaddingBottomRight: L.point(20, 20) });
 const layers = { red: L.layerGroup().addTo(map), yellow: L.layerGroup().addTo(map), graves: L.layerGroup().addTo(map) };
@@ -179,6 +184,7 @@ function setSite(pts) {
   const f = $("#check-form"); f.lat.value = lat.toFixed(4); f.lng.value = lng.toFixed(4);
   if (pin) { map.removeLayer(pin); pin = null; }
   drawInfo.textContent = `Site drawn · ${areaHa(pts).toFixed(1)} ha`;
+  lastSite = pts;
 }
 function stopDrawing() {
   drawing = false; document.body.classList.remove("drawing");
@@ -194,8 +200,20 @@ drawBtn.addEventListener("click", () => {
 });
 map.on("dblclick", e => { if (drawing) { L.DomEvent.stop(e); stopDrawing(); } });
 
+// Demo sites can be re-placed in the UI ("Save as demo"); stored separately so Reset keeps them.
+const demoOverrides = (() => { try { return JSON.parse(localStorage.getItem("gdp_demo_sites") || "{}"); } catch { return {}; } })();
+let lastSite = null;
+window.saveDemo = i => {
+  if (!lastSite) return alert("Draw a site first (✏️ Draw site on map).");
+  demoOverrides[i] = lastSite;
+  try { localStorage.setItem("gdp_demo_sites", JSON.stringify(demoOverrides)); } catch {}
+  const coords = JSON.stringify(lastSite.map(([la, ln]) => [+la.toFixed(4), +ln.toFixed(4)]));
+  $("#demo-coords").innerHTML = `Saved as demo ${i + 1}. Coordinates (send to dev to make permanent):<br><code>${coords}</code>`;
+};
+window.clearDemoSites = () => { try { localStorage.removeItem("gdp_demo_sites"); } catch {} location.reload(); };
+
 async function runDemo(i) {
-  const d = CONFIG.demos[i], f = $("#check-form");
+  const d = { ...CONFIG.demos[i], ...(demoOverrides[i] ? { polygon: demoOverrides[i] } : {}) }, f = $("#check-form");
   showHost("map"); showMod("check"); if (drawing) stopDrawing();
   $("#check-result").innerHTML = "";
   f.pname.value = d.name; f.tech.value = d.tech; f.mw.value = d.mw; f.operator.value = d.operator;

@@ -154,3 +154,8 @@ dialog h3 { margin: 0; }
   .layers { display: block; top: 8px; right: 8px; left: auto; bottom: auto; min-width: 0; padding: 6px 8px; font-size: 12px; }
   .layers .layer-group, .layers label.off, .layers-title { display: none; }
 }
+
+.demo-setup { width: 100%; font-size: 12px; }
+.demo-setup summary { cursor: pointer; color: #5a4fc9; }
+.demo-setup .small-btn { margin: 3px 3px 0 0; }
+.demo-setup code { font-size: 10px; word-break: break-all; }
