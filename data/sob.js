@@ -31,7 +31,7 @@ window.EXTRA_PROJECTS = (window.EXTRA_PROJECTS || []).concat([
     source: "https://www.traunsteiner-tagblatt.de/region/landkreis-traunstein_artikel,-77-vorranggebiete-fuer-die-windkraft-_arid,28465.html" },
 ]);
 window.EXTRA_RED_ZONES = (window.EXTRA_RED_ZONES || []).concat([
-  { id: "sobr1", name: "Munich region battery storage queue", lat: 48.14, lng: 11.58, radiusKm: 35, operator: "Bayernwerk Netz / SWM Infrastruktur",
+  { id: "sobr1", name: "Munich region battery storage queue", lat: 48.14, lng: 11.58, radiusKm: 25, techs: ["storage"], operator: "Bayernwerk Netz / SWM Infrastruktur",
     why: "More than 200 battery storage projects in the Munich area were reported waiting for grid-operator approval in 2026; Bayernwerk cites requested capacity rising from ~1 GW to ~80 GW, and the BNetzA in 2026 upheld a refusal to connect a storage project.",
     until: "Unclear; depends on federal reform of storage grid-connection rules (KraftNAV / end of first-come-first-served)", illustrative: true },
 ]);

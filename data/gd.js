@@ -24,14 +24,6 @@ window.EXTRA_PROJECTS = (window.EXTRA_PROJECTS || []).concat([
     source: "https://www.pv-magazine.de/2026/08/25/alpiq-uebernimmt-batteriespeicher-von-eco-stor-in-bollingstedt/" },
 ]);
 window.EXTRA_RED_ZONES = (window.EXTRA_RED_ZONES || []).concat([
-  { id: "gdr1", name: "50Hertz control area (east Germany): no new transmission connections before 2029/30", lat: 52.60, lng: 13.00, radiusKm: 220,
-    operator: "50Hertz",
-    why: "50Hertz says capacity for project starts from 2025 to 2029 is exhausted; around 150 pending battery storage requests with 63 GW have no prospect of starting before 2030.",
-    until: "2030 at the earliest (new maturity-based allocation since April 2026)", illustrative: true },
-  { id: "gdr2", name: "Schleswig-Holstein distribution grid (SH Netz)", lat: 54.30, lng: 9.70, radiusKm: 90,
-    operator: "Schleswig-Holstein Netz",
-    why: "SH Netz has connection requests for about 60 GW (roughly four times everything connected in 40 years) and warns of bottlenecks for large connections.",
-    until: "Grid investment programme of ~EUR 2.5bn runs to 2030", illustrative: true },
   { id: "gdr3", name: "Berlin: large connections (>3.5 MVA) rationed", lat: 52.52, lng: 13.40, radiusKm: 20,
     operator: "Stromnetz Berlin",
     why: "Scarce capacity is rationed via an annual pro-rata allocation; the 2026 allocation round was postponed by six months because of a pending lawsuit (hearing 8 Oct 2026).",

@@ -44,7 +44,7 @@ window.EXTRA_RED_ZONES = (window.EXTRA_RED_ZONES || []).concat([
   { id: "frr1", name: "Roth / Schwabach / Wendelstein PV connection stop", lat: 49.29, lng: 11.06, radiusKm: 12, operator: "N-ERGIE Netz",
     why: "Upstream N-ERGIE lines are overloaded. New PV of 30 kW or more can no longer connect through the local utility grids and must use the Ludersheim substation about 30 km away.",
     until: "Open-ended; N-ERGIE is expanding the grid (about 100 construction sites by 2028)", illustrative: true },
-  { id: "frr2", name: "West Middle Franconia PV saturation", lat: 49.30, lng: 10.50, radiusKm: 30, operator: "N-ERGIE Netz",
+  { id: "frr2", name: "West Middle Franconia PV saturation", lat: 49.30, lng: 10.50, radiusKm: 25, techs: ["solar"], operator: "N-ERGIE Netz",
     why: "N-ERGIE says its West Middle Franconia grid is among the most PV-saturated in Germany: about 3.4 GW of PV and wind feed-in against roughly 700 MW of load on sunny days. Many substations are capacity-limited and new solar parks are regularly curtailed.",
     until: "Relief expected with substation and line expansion through 2028 (EUR 1.3 bn grid investment to 2030)", illustrative: true },
 ]);

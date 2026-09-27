@@ -63,7 +63,7 @@ window.EXTRA_PROJECTS = (window.EXTRA_PROJECTS || []).concat([
     source: "https://www.onetz.de/oberpfalz/parkstein/buergerentscheid-parkstein-gescheitert-61-prozent-votieren-fuer-windkraft-id5507498.html" },
 ]);
 window.EXTRA_RED_ZONES = (window.EXTRA_RED_ZONES || []).concat([
-  { id: "nbr1", name: "Pfeffenhausen storage connection stop", lat: 48.66, lng: 11.97, radiusKm: 10, operator: "Bayernwerk Netz",
+  { id: "nbr1", name: "Pfeffenhausen storage connection stop", lat: 48.66, lng: 11.97, radiusKm: 10, techs: ["storage"], operator: "Bayernwerk Netz",
     why: "Bayernwerk states there is no grid perspective for battery storage at medium/high voltage here; requests are rejected.",
     until: "No date given", illustrative: true },
 ]);

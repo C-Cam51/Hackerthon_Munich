@@ -3,6 +3,7 @@
 
 const CONFIG = {
   startCredits: 0,
+  maxZoneRadiusKm: 35,  // zones larger than this are ignored (a zone must be local, not a whole control area)
   mapBounds: [[45.8, 5.8], [55.1, 17.2]], // DACH
   // similarity scoring for the "speed camera" check
   distance: [{ km: 10, pts: 50 }, { km: 30, pts: 30 }, { km: 60, pts: 10 }],
@@ -22,8 +23,9 @@ const valid = p => p && REASONS[p.reasons?.[0]] && STATUS[p.status] && TECH_OK.i
 const TECH_OK = ["solar", "wind", "storage"];
 const PROJECTS = [...SEED_PROJECTS, ...(window.EXTRA_PROJECTS || [])]
   .map(p => ({ ...p, reasons: (p.reasons || []).filter(r => REASONS[r]) })).filter(valid);
-const REDS = [...RED_ZONES, ...(window.EXTRA_RED_ZONES || [])];
-const YELLOWS = [...YELLOW_ZONES, ...(window.EXTRA_YELLOW_ZONES || [])];
+const localZone = z => z.radiusKm <= CONFIG.maxZoneRadiusKm || (console.warn("zone too large, ignored:", z.id), false);
+const REDS = [...RED_ZONES, ...(window.EXTRA_RED_ZONES || [])].filter(localZone);
+const YELLOWS = [...YELLOW_ZONES, ...(window.EXTRA_YELLOW_ZONES || [])].filter(localZone);
 
 // ---------- State ----------
 const store = {
@@ -99,6 +101,7 @@ function redHtml(z) {
     ${z.operator ? `<p>Grid operator: ${esc(z.operator)}</p>` : ""}
     <p><b>Why blocked:</b> ${esc(z.why)}</p>
     <p><b>Blocked until:</b> ${esc(z.until)}</p>
+    ${z.techs ? `<p><b>Applies to:</b> ${z.techs.map(t => TECH[t]).join(", ")} only</p>` : ""}
     ${z.illustrative ? `<p class="muted">Area approximate / illustrative.</p>` : ""}</div>`;
 }
 
@@ -224,8 +227,9 @@ function runCheck(np) {
     return;
   }
   setCredits(-1);
-  const inRed = REDS.find(z => km(np, z) <= z.radiusKm);
-  const inYellow = YELLOWS.find(z => km(np, z) <= z.radiusKm);
+  const appliesTo = (z, tech) => !z.techs || z.techs.includes(tech);
+  const inRed = REDS.find(z => km(np, z) <= z.radiusKm && appliesTo(z, np.tech));
+  const inYellow = YELLOWS.find(z => km(np, z) <= z.radiusKm && appliesTo(z, np.tech));
   const matches = allProjects().map(p => similarity(np, p)).filter(m => band(m) && m.score >= CONFIG.minMatchScore)
     .sort((a, b) => b.score - a.score).slice(0, CONFIG.maxMatches);
   const top = matches[0]?.score || 0;
