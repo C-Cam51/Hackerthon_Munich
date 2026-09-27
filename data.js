@@ -211,3 +211,13 @@ const YELLOW_ZONES = [
   { id: "y5", name: "Walschleben substation (expanded)", lat: 51.07, lng: 10.93, radiusKm: 12,
     operator: "Thüringer Energienetze", mw: 12, from: "2027", baseInterest: 1 },
 ];
+
+// Demo pipeline of the logged-in developer inside the host platform (fictitious).
+const DEMO_PIPELINE = [
+  { id: "d1", name: "Solar park Isarauen", tech: "solar", mw: 25, lat: 48.62, lng: 12.45, place: "Dingolfing-Landau, BY", operator: "Bayernwerk", stage: "Grid request" },
+  { id: "d2", name: "BESS Oldenburg Süd", tech: "storage", mw: 50, lat: 53.10, lng: 8.22, place: "Oldenburg, NI", operator: "EWE Netz", stage: "Site search" },
+  { id: "d3", name: "Wind farm Hochtaunus", tech: "wind", mw: 30, lat: 50.30, lng: 8.42, place: "Hochtaunuskreis, HE", operator: "", stage: "Permitting" },
+  { id: "d4", name: "Agri-PV Frankenthal Nord", tech: "solar", mw: 40, lat: 49.56, lng: 8.37, place: "Frankenthal, RP", operator: "Pfalzwerke Netz", stage: "Grid request" },
+  { id: "d5", name: "Solar park Ried", tech: "solar", mw: 12, lat: 48.28, lng: 10.52, place: "Aichach-Friedberg, BY", operator: "LEW Verteilnetz", stage: "Site search" },
+  { id: "d6", name: "Solar park Uckermark West", tech: "solar", mw: 80, lat: 53.05, lng: 13.70, place: "Uckermark, BB", operator: "E.ON edis", stage: "Stopped" },
+];
