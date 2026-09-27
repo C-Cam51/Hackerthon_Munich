@@ -88,17 +88,17 @@ function projectHtml(p) {
     <div>${tags(p.reasons)} <span class="status">${STATUS[p.status]}</span></div>
     <p>${esc(p.text)}</p>
     ${p.quote ? `<blockquote>„${esc(p.quote)}“</blockquote>` : ""}
-    ${p.weakSource ? `<div class="warn">⚠ Secondary source – verify</div>` : ""}
+    ${p.weakSource ? `<div class="warn">Secondary source – verify</div>` : ""}
     ${p.source ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">Source ↗</a>` : `<span class="muted">Buried by a developer (anonymised)</span>`}`;
 }
 
 const interestCount = z => z.baseInterest + (state.interests[z.id] ? 1 : 0);
 function interestBtn(z) {
   const mine = !!state.interests[z.id];
-  return `<button type="button" class="small-btn ${mine ? "done" : ""}" data-int="${z.id}" onclick="toggleInterest('${z.id}', event)">${mine ? "✓ Interest expressed" : "Express interest"}</button>`;
+  return `<button type="button" class="small-btn ${mine ? "done" : ""}" data-int="${z.id}" onclick="toggleInterest('${z.id}', event)">${mine ? "Interest registered" : "Express interest"}</button>`;
 }
 function yellowHtml(z) {
-  return `<div class="popup"><h4>🟡 ${esc(z.name)}</h4>
+  return `<div class="popup"><h4><span class="zdot yellow"></span>${esc(z.name)}</h4>
     <p><b>${z.mw} MW</b> connection capacity expected to free up from <b>${esc(z.from)}</b>.</p>
     ${z.operator ? `<p>Grid operator: ${esc(z.operator)}</p>` : ""}
     ${z.note ? `<p class="muted">${esc(z.note)}</p>` : ""}
@@ -106,7 +106,7 @@ function yellowHtml(z) {
     ${interestBtn(z)}</div>`;
 }
 function redHtml(z) {
-  return `<div class="popup"><h4>🔴 ${esc(z.name)}</h4>
+  return `<div class="popup"><h4><span class="zdot red"></span>${esc(z.name)}</h4>
     ${z.operator ? `<p>Grid operator: ${esc(z.operator)}</p>` : ""}
     <p><b>Why blocked:</b> ${esc(z.why)}</p>
     <p><b>Blocked until:</b> ${esc(z.until)}</p>
@@ -143,7 +143,7 @@ window.toggleInterest = (id, ev) => {
   state.interests[id] = !state.interests[id]; save();
   const z = YELLOWS.find(y => y.id === id), mine = !!state.interests[id];
   // update every button/counter for this zone in place (popup, check result, grid tab)
-  $$(`[data-int="${id}"]`).forEach(b => { b.classList.toggle("done", mine); b.textContent = mine ? "✓ Interest expressed" : "Express interest"; });
+  $$(`[data-int="${id}"]`).forEach(b => { b.classList.toggle("done", mine); b.textContent = mine ? "Interest registered" : "Express interest"; });
   $$(`[data-count="${id}"]`).forEach(s => { s.textContent = interestCount(z); });
 };
 
@@ -159,11 +159,11 @@ map.on("click", e => {
   if (drawing) {
     drawPts.push([e.latlng.lat, e.latlng.lng]);
     clearShape(); drawShape = L.polygon(drawPts, { color: "#1d4ed8", weight: 3, dashArray: "4", fillOpacity: .15 }).addTo(map);
-    drawInfo.textContent = `${drawPts.length} corners · double-click or ✓ to finish`;
+    drawInfo.textContent = `${drawPts.length} corners · double-click or Finish`;
     return;
   }
   if ($("#mod-reasons").classList.contains("active")) showMod("check");
-  if (!$("#mod-bury").classList.contains("active")) { clearShape(); drawInfo.textContent = "Point selected · or ✏️ draw the site"; }
+  if (!$("#mod-bury").classList.contains("active")) { clearShape(); drawInfo.textContent = "Point selected · or draw the site"; }
   setPin(e.latlng.lat, e.latlng.lng);
 });
 
@@ -188,14 +188,14 @@ function setSite(pts) {
 }
 function stopDrawing() {
   drawing = false; document.body.classList.remove("drawing");
-  drawBtn.classList.remove("active"); drawBtn.textContent = "✏️ Draw site on map";
+  drawBtn.classList.remove("active"); drawBtn.textContent = "Draw site on map";
   if (drawPts.length >= 3) setSite(drawPts); else { clearShape(); drawInfo.textContent = "or click the map for a point"; }
 }
 drawBtn.addEventListener("click", () => {
   if (drawing) return stopDrawing();
   drawing = true; drawPts = []; clearShape();
   document.body.classList.add("drawing");
-  drawBtn.classList.add("active"); drawBtn.textContent = "✓ Finish drawing";
+  drawBtn.classList.add("active"); drawBtn.textContent = "Finish drawing";
   drawInfo.textContent = "Click the corners of your site";
 });
 map.on("dblclick", e => { if (drawing) { L.DomEvent.stop(e); stopDrawing(); } });
@@ -204,7 +204,7 @@ map.on("dblclick", e => { if (drawing) { L.DomEvent.stop(e); stopDrawing(); } })
 const demoOverrides = (() => { try { return JSON.parse(localStorage.getItem("gdp_demo_sites") || "{}"); } catch { return {}; } })();
 let lastSite = null;
 window.saveDemo = i => {
-  if (!lastSite) return alert("Draw a site first (✏️ Draw site on map).");
+  if (!lastSite) return alert("Draw a site first (Draw site on map).");
   demoOverrides[i] = lastSite;
   try { localStorage.setItem("gdp_demo_sites", JSON.stringify(demoOverrides)); } catch {}
   const coords = JSON.stringify(lastSite.map(([la, ln]) => [+la.toFixed(4), +ln.toFixed(4)]));
@@ -284,7 +284,7 @@ $("#upload-form").addEventListener("submit", e => {
   if (!reasons.length) { msg.className = "msg err"; msg.textContent = "Pick at least one reason."; return; }
   bury({ name: f.pname.value, tech: f.tech.value, mw: +f.mw.value, lat: +f.lat.value, lng: +f.lng.value, operator: f.operator.value,
     reasons, status: f.status.value, year: +f.year.value, text: f.text.value || "No details given." });
-  msg.className = "msg ok"; msg.textContent = `🪦 "${f.pname.value}" rests in peace. +1 credit.`;
+  msg.className = "msg ok"; msg.textContent = `"${f.pname.value}" added to the graveyard. +1 credit.`;
   f.pname.value = ""; f.text.value = "";
 });
 
@@ -308,7 +308,7 @@ function similarity(np, p) {
 function runCheck(np) {
   const out = $("#check-result");
   if (state.credits < 1) {
-    out.innerHTML = `<div class="verdict red"><h3>No credits left</h3>One in, one out: bury one of your dead projects first to unlock a check.
+    out.innerHTML = `<div class="verdict red"><div class="verdict-top"><span class="pill red">No credits</span></div><h3>No credits left</h3>One in, one out: bury one of your dead projects first to unlock a check.
       <button class="primary" type="button" onclick="showMod('bury')">Bury a project</button></div>`;
     out.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
@@ -323,7 +323,7 @@ function runCheck(np) {
 
   const tried = matches.find(m => m.d <= CONFIG.triedHereKm);
   const triedHtml = tried ? `<div class="tried">
-      <h4>⚠ Someone already tried here${tried.p.year ? " in " + tried.p.year : ""}</h4>
+      <h4>Previous attempt at this site${tried.p.year ? " (" + tried.p.year + ")" : ""}</h4>
       <p><b>${esc(tried.p.name)}</b>, ${tried.d.toFixed(1)} km away · ${STATUS[tried.p.status]}</p>
       <p>${tags(tried.p.reasons)}</p>
       <p><b>Why it failed:</b> ${esc(tried.p.text)}</p>
@@ -331,14 +331,15 @@ function runCheck(np) {
       ${tried.p.source ? `<a href="${esc(tried.p.source)}" target="_blank" rel="noopener">Source ↗</a>` : ""}</div>` : "";
 
   let level, title, body;
-  if (inRed) { level = "red"; title = "🔴 Flash! Grid blocked here"; body = `<b>${esc(inRed.name)}</b><br>${esc(inRed.why)}<br><b>Until:</b> ${esc(inRed.until)}`; }
-  else if (inYellow) { level = "yellow"; title = "🟡 Capacity expected to free up"; body = `${inYellow.mw} MW from ${esc(inYellow.from)} at <b>${esc(inYellow.name)}</b>. <span data-count="${inYellow.id}">${interestCount(inYellow)}</span> developers interested.<br>${interestBtn(inYellow)}`; }
-  else if (top >= CONFIG.redAt) { level = "red"; title = "🔴 Watch out! This site has a grave"; body = "A very similar project right here has already failed. Check the reasons before you invest."; }
-  else if (top >= CONFIG.yellowAt) { level = "yellow"; title = "🟡 Caution"; body = "Similar projects in the region failed. Check the reasons below."; }
-  else { level = "green"; title = "🟢 No dead projects nearby"; body = `No failed projects within ${CONFIG.distance.at(-1).km} km and no blocked grid area. Go ahead: no known graves here.`; }
+  if (inRed) { level = "red"; title = "Grid connection blocked at this site"; body = `<b>${esc(inRed.name)}</b><br>${esc(inRed.why)}<br><b>Until:</b> ${esc(inRed.until)}`; }
+  else if (inYellow) { level = "yellow"; title = "Grid capacity expected to free up"; body = `${inYellow.mw} MW from ${esc(inYellow.from)} at <b>${esc(inYellow.name)}</b>. <span data-count="${inYellow.id}">${interestCount(inYellow)}</span> developers interested.<br>${interestBtn(inYellow)}`; }
+  else if (top >= CONFIG.redAt) { level = "red"; title = "A comparable project already failed here"; body = "Review the failure reasons below before investing further."; }
+  else if (top >= CONFIG.yellowAt) { level = "yellow"; title = "Comparable projects failed in the region"; body = "Check the failure reasons below."; }
+  else { level = "green"; title = "No failed projects nearby"; body = `No failed projects within ${CONFIG.distance.at(-1).km} km and no known grid restriction at this site.`; }
 
   const pname = $("#check-form").pname.value.trim();
-  out.innerHTML = `<div class="verdict ${level}">${pname ? `<div class="muted" style="color:inherit;opacity:.85">${esc(pname)}</div>` : ""}<h3>${title}</h3><div>${body}</div>${triedHtml}</div>
+  const LABEL = { red: "High risk", yellow: "Caution", green: "Clear" };
+  out.innerHTML = `<div class="verdict ${level}"><div class="verdict-top"><span class="pill ${level}">${LABEL[level]}</span>${pname ? `<span class="vname">${esc(pname)}</span>` : ""}</div><h3>${title}</h3><div>${body}</div>${triedHtml}</div>
     <h4 style="margin:14px 0 4px">Similar dead projects (${matches.length})</h4>
     ${matches.length ? matches.map(m => `<div class="match"><span class="score">${m.score}%</span> · <b>${esc(m.p.name)}</b> ${tags(m.p.reasons)}<br>
       <span class="muted">${m.why.join(" · ")}: ${esc(m.p.text)}</span></div>`).join("") : `<p class="muted">None within ${CONFIG.distance.at(-1).km} km.</p>`}`;
@@ -356,8 +357,8 @@ $("#check-form").addEventListener("submit", e => {
 function renderPipeline() {
   $("#pipeline-body").innerHTML = state.pipeline.map(p => {
     const dead = p.stage === "Stopped";
-    const action = p.buried ? `<span class="buried">🪦 Buried · +1 credit earned</span>`
-      : dead ? `<button class="small-btn" data-bury="${p.id}">🪦 Bury · +1 credit</button>`
+    const action = p.buried ? `<span class="buried">Added to graveyard · +1 credit</span>`
+      : dead ? `<button class="small-btn" data-bury="${p.id}">Bury · +1 credit</button>`
       : `<button class="small-btn ghost" data-check="${p.id}">Graveyard check · 1 credit</button>`;
     return `<tr class="${dead ? "dead" : ""}"><td><b>${esc(p.name)}</b></td><td>${TECH[p.tech]}</td><td>${p.mw}</td><td>${esc(p.place)}</td>
       <td><select data-stage="${p.id}" ${p.buried ? "disabled" : ""}>${CONFIG.stages.map(s => `<option ${s === p.stage ? "selected" : ""}>${s}</option>`).join("")}</select></td>
@@ -396,7 +397,7 @@ $("#bury-dialog").addEventListener("close", () => {
 // ---------- Host: grid connection brokerage ----------
 function renderGrid() {
   $("#grid-list").innerHTML = YELLOWS.map(z => `<div class="card">
-    <h4>🟡 ${esc(z.name)}</h4>
+    <h4><span class="zdot yellow"></span>${esc(z.name)}</h4>
     <div class="meta">${z.operator ? esc(z.operator) + " · " : ""}${z.mw} MW from ${esc(z.from)}</div>
     ${z.note ? `<p>${esc(z.note)}</p>` : ""}
     <p><b data-count="${z.id}">${interestCount(z)}</b> developers interested</p>
