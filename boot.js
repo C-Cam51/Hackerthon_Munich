@@ -3,7 +3,7 @@
 const FILES = [
   "style.css",
   "data.js",
-  "data/nb.js", "data/sob.js", "data/fr.js", "data/at.js", "data/gd.js",
+  "data/nb.js", "data/sob.js", "data/fr.js", "data/at.js", "data/gd.js", "data/ch.js",
   "app.js",
 ];
 (async () => {
