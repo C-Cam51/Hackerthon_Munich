@@ -11,8 +11,12 @@ Reset the demo state: run `resetDemo()` in the browser console.
 |---|---|
 | Scoring, thresholds, start credits, map bounds | `CONFIG` at the top of `app.js` |
 | Base cases, red/yellow zones, reasons, demo pipeline | `data.js` |
-| Research data per region (auto-loaded) | `data/*.js` (push into `window.EXTRA_*`) |
+| Research data per region | `data/*.js` (push into `window.EXTRA_*`), **register new files in `boot.js`** |
 | Colors | `:root` tokens in `style.css` |
 | Layout / texts | `index.html` |
 
 Leaflet is vendored in `vendor/` so the demo works without a CDN.
+
+## Safety nets
+- **No stale cache:** `boot.js` loads CSS, data and app with a fresh `?v=` on every page load, so a push is live after the Pages deploy (~1 min). Changes to `index.html` markup itself may still need a hard reload (Ctrl+Shift+R).
+- **Data check:** `node tools/validate.js` checks ids, reasons, status, tech, DACH coordinates and zone size (max 35 km). It runs on every push (GitHub Actions → "Validate data"); a red ✗ means the data must be fixed.

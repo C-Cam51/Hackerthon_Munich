@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Graveyard of Dead Projects – dvlp.energy integration mockup</title>
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- Host shell: emulates how the module looks inside the dvlp.energy web-GIS -->
@@ -157,13 +157,7 @@
   </dialog>
 
   <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="data.js"></script>
-  <!-- research data files; a missing file is simply skipped -->
-  <script src="data/nb.js"></script>
-  <script src="data/sob.js"></script>
-  <script src="data/fr.js"></script>
-  <script src="data/at.js"></script>
-  <script src="data/gd.js"></script>
-  <script src="app.js"></script>
+  <!-- boot.js loads style.css, data files and app.js without cache; edit the file list there -->
+  <script>document.write('<script src="boot.js?v=' + Date.now() + '"><\/script>')</script>
 </body>
 </html>
