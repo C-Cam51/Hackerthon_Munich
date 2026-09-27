@@ -47,7 +47,7 @@
               <div class="module-title">🪦 Graveyard of Dead Projects</div>
               <div class="module-sub">One in, one out · data by Graveyard</div>
             </div>
-            <div class="credits" title="Every dead project you bury earns one check."><b id="credit-count">0</b> credits</div>
+            <div class="credits" title="Every dead project you bury earns one check."><b id="credit-count">0</b> <span id="credit-label">credits</span></div>
           </div>
           <div class="module-tabs">
             <button class="mtab active" data-mod="check">Check site</button>
@@ -88,7 +88,7 @@
 
             <!-- REASONS -->
             <div id="mod-reasons" class="mod">
-              <input id="search" type="search" placeholder="Search e.g. substation, auction, Bürgerentscheid…">
+              <input id="search" type="search" placeholder="Search: grid, auction, referendum…">
               <div id="chips" class="chips"></div>
               <div id="stats" class="stats"></div>
               <div id="results" class="cards"></div>
@@ -132,10 +132,10 @@
         <div class="page">
           <h2>Project pipeline</h2>
           <p class="muted">Your team's projects. When a project is stopped, bury it in the graveyard with one click and earn a check credit.</p>
-          <table class="pipeline">
+          <div class="table-wrap"><table class="pipeline">
             <thead><tr><th>Project</th><th>Technology</th><th>MW</th><th>Location</th><th>Stage</th><th>Graveyard</th></tr></thead>
             <tbody id="pipeline-body"></tbody>
-          </table>
+          </table></div>
         </div>
       </section>
 

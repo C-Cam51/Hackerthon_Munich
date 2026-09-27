@@ -97,7 +97,7 @@ main { flex: 1; min-width: 0; position: relative; }
 .bar { height: 8px; border-radius: 4px; }
 .insight { background: #fff6e0; border-left: 4px solid var(--yellow); padding: 8px 10px; border-radius: 6px; font-size: 12px; margin-bottom: 6px; }
 .cards { display: grid; gap: 10px; }
-.page .cards { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); margin-top: 16px; }
+.page .cards { grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); margin-top: 16px; }
 .card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
 .card h4, .popup h4 { margin: 0 0 3px; font-size: 14px; }
 .meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
@@ -145,3 +145,12 @@ dialog h3 { margin: 0; }
 .tried { margin-top: 10px; background: #fff; color: var(--ink); border-radius: 8px; padding: 10px; }
 .tried h4 { margin: 0 0 4px; font-size: 13px; }
 .tried p { margin: 4px 0; font-size: 12px; }
+
+/* QA fixes */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 900px) {
+  .page { padding: 14px; }
+  .table-wrap::after { content: "← swipe for more →"; display: block; text-align: center; font-size: 11px; color: var(--muted); padding: 6px; }
+  .layers { display: block; top: 8px; right: 8px; left: auto; bottom: auto; min-width: 0; padding: 6px 8px; font-size: 12px; }
+  .layers .layer-group, .layers label.off, .layers-title { display: none; }
+}

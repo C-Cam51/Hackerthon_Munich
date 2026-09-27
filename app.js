@@ -59,6 +59,7 @@ function setCredits(delta) {
   state.credits += delta; save();
   const el = $("#credit-count");
   el.textContent = state.credits;
+  $("#credit-label").textContent = state.credits === 1 ? "credit" : "credits";
   el.parentElement.classList.remove("bump"); void el.offsetWidth; el.parentElement.classList.add("bump");
 }
 
@@ -94,7 +95,7 @@ function projectHtml(p) {
 const interestCount = z => z.baseInterest + (state.interests[z.id] ? 1 : 0);
 function interestBtn(z) {
   const mine = !!state.interests[z.id];
-  return `<button class="small-btn ${mine ? "done" : ""}" onclick="toggleInterest('${z.id}')">${mine ? "✓ Interest expressed" : "Express interest"}</button>`;
+  return `<button type="button" class="small-btn ${mine ? "done" : ""}" data-int="${z.id}" onclick="toggleInterest('${z.id}', event)">${mine ? "✓ Interest expressed" : "Express interest"}</button>`;
 }
 function yellowHtml(z) {
   return `<div class="popup"><h4>🟡 ${esc(z.name)}</h4>
@@ -117,25 +118,28 @@ function redHtml(z) {
 const map = L.map("map", { zoomSnap: 0.5 }).fitBounds(CONFIG.mapBounds);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
 
+const POPUP = () => ({ maxWidth: Math.min(320, window.innerWidth - 90), autoPanPaddingTopLeft: L.point(window.innerWidth > 900 ? 270 : 20, 20), autoPanPaddingBottomRight: L.point(20, 20) });
 const layers = { red: L.layerGroup().addTo(map), yellow: L.layerGroup().addTo(map), graves: L.layerGroup().addTo(map) };
 const yellowCircles = {};
-REDS.forEach(z => L.circle([z.lat, z.lng], { radius: z.radiusKm * 1000, color: "#d62828", weight: 2, fillOpacity: .35 }).bindPopup(redHtml(z)).addTo(layers.red));
+REDS.forEach(z => L.circle([z.lat, z.lng], { radius: z.radiusKm * 1000, color: "#d62828", weight: 2, fillOpacity: .35 }).bindPopup(redHtml(z), POPUP()).addTo(layers.red));
 YELLOWS.forEach(z => {
   yellowCircles[z.id] = L.circle([z.lat, z.lng], { radius: z.radiusKm * 1000, color: "#c99a00", weight: 2, fillColor: "#f4c20d", fillOpacity: .4 })
-    .bindPopup(() => yellowHtml(z)).addTo(layers.yellow);
+    .bindPopup(() => yellowHtml(z), POPUP()).addTo(layers.yellow);
 });
 function renderGraves() {
   layers.graves.clearLayers();
   allProjects().forEach(p => L.circleMarker([p.lat, p.lng], { radius: 7, color: "#fff", weight: 2, fillColor: REASONS[p.reasons[0]].color, fillOpacity: 1 })
-    .bindPopup(`<div class="popup">${projectHtml(p)}</div>`, { maxWidth: 320 }).addTo(layers.graves));
+    .bindPopup(`<div class="popup">${projectHtml(p)}</div>`, POPUP()).addTo(layers.graves));
 }
 $$("[data-layer]").forEach(cb => cb.addEventListener("change", () => cb.checked ? layers[cb.dataset.layer].addTo(map) : map.removeLayer(layers[cb.dataset.layer])));
 
-window.toggleInterest = id => {
+window.toggleInterest = (id, ev) => {
+  if (ev) { ev.stopPropagation(); ev.preventDefault(); }
   state.interests[id] = !state.interests[id]; save();
-  const z = YELLOWS.find(y => y.id === id);
-  yellowCircles[id]?.setPopupContent(yellowHtml(z));
-  if ($("#host-grid").classList.contains("active")) renderGrid();
+  const z = YELLOWS.find(y => y.id === id), mine = !!state.interests[id];
+  // update every button/counter for this zone in place (popup, check result, grid tab)
+  $$(`[data-int="${id}"]`).forEach(b => { b.classList.toggle("done", mine); b.textContent = mine ? "✓ Interest expressed" : "Express interest"; });
+  $$(`[data-count="${id}"]`).forEach(s => { s.textContent = interestCount(z); });
 };
 
 // Map click sets the location of the active form (check or bury)
@@ -154,7 +158,7 @@ map.on("click", e => {
     return;
   }
   if ($("#mod-reasons").classList.contains("active")) showMod("check");
-  if (!$("#mod-bury").classList.contains("active")) clearShape();
+  if (!$("#mod-bury").classList.contains("active")) { clearShape(); drawInfo.textContent = "Point selected · or ✏️ draw the site"; }
   setPin(e.latlng.lat, e.latlng.lng);
 });
 
@@ -276,7 +280,7 @@ function similarity(np, p) {
   const d = km(np, p), why = [];
   let score = 0;
   const band = CONFIG.distance.find(b => d < b.km);
-  if (band) { score += band.pts; why.push(`${d.toFixed(0)} km away`); }
+  if (band) { score += band.pts; why.push(`${d < 10 ? d.toFixed(1) : d.toFixed(0)} km away`); }
   if (np.tech === p.tech) { score += CONFIG.sameTech; why.push("same technology"); }
   if (p.mw && np.mw && Math.abs(np.mw - p.mw) <= CONFIG.sizeTolerance * p.mw) { score += CONFIG.similarSize; why.push("similar size"); }
   if (np.operator && p.operator && np.operator.toLowerCase() === p.operator.toLowerCase()) { score += CONFIG.sameOperator; why.push("same grid operator"); }
@@ -288,6 +292,7 @@ function runCheck(np) {
   if (state.credits < 1) {
     out.innerHTML = `<div class="verdict red"><h3>No credits left</h3>One in, one out: bury one of your dead projects first to unlock a check.
       <button class="primary" type="button" onclick="showMod('bury')">Bury a project</button></div>`;
+    out.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
   setCredits(-1);
@@ -309,7 +314,7 @@ function runCheck(np) {
 
   let level, title, body;
   if (inRed) { level = "red"; title = "🔴 Flash! Grid blocked here"; body = `<b>${esc(inRed.name)}</b><br>${esc(inRed.why)}<br><b>Until:</b> ${esc(inRed.until)}`; }
-  else if (inYellow) { level = "yellow"; title = "🟡 Capacity expected to free up"; body = `${inYellow.mw} MW from ${esc(inYellow.from)} at <b>${esc(inYellow.name)}</b>. ${interestCount(inYellow)} developers interested.<br>${interestBtn(inYellow)}`; }
+  else if (inYellow) { level = "yellow"; title = "🟡 Capacity expected to free up"; body = `${inYellow.mw} MW from ${esc(inYellow.from)} at <b>${esc(inYellow.name)}</b>. <span data-count="${inYellow.id}">${interestCount(inYellow)}</span> developers interested.<br>${interestBtn(inYellow)}`; }
   else if (top >= CONFIG.redAt) { level = "red"; title = "🔴 Watch out! This site has a grave"; body = "A very similar project right here has already failed. Check the reasons before you invest."; }
   else if (top >= CONFIG.yellowAt) { level = "yellow"; title = "🟡 Caution"; body = "Similar projects in the region failed. Check the reasons below."; }
   else { level = "green"; title = "🟢 No dead projects nearby"; body = `No failed projects within ${CONFIG.distance.at(-1).km} km and no blocked grid area. Go ahead: no known graves here.`; }
@@ -319,6 +324,7 @@ function runCheck(np) {
     <h4 style="margin:14px 0 4px">Similar dead projects (${matches.length})</h4>
     ${matches.length ? matches.map(m => `<div class="match"><span class="score">${m.score}%</span> · <b>${esc(m.p.name)}</b> ${tags(m.p.reasons)}<br>
       <span class="muted">${m.why.join(" · ")}: ${esc(m.p.text)}</span></div>`).join("") : `<p class="muted">None within ${CONFIG.distance.at(-1).km} km.</p>`}`;
+  out.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 const band = m => m.d < CONFIG.distance.at(-1).km;
 
@@ -375,10 +381,11 @@ function renderGrid() {
     <h4>🟡 ${esc(z.name)}</h4>
     <div class="meta">${z.operator ? esc(z.operator) + " · " : ""}${z.mw} MW from ${esc(z.from)}</div>
     ${z.note ? `<p>${esc(z.note)}</p>` : ""}
-    <p><b>${interestCount(z)}</b> developers interested</p>
+    <p><b data-count="${z.id}">${interestCount(z)}</b> developers interested</p>
     ${interestBtn(z)}</div>`).join("");
 }
 
 // ---------- Init ----------
 $("#credit-count").textContent = state.credits;
+$("#credit-label").textContent = state.credits === 1 ? "credit" : "credits";
 renderGraves(); renderChips(); renderStats(); renderResults();
