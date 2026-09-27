@@ -16,7 +16,7 @@ for (const f of files) {
   catch (e) { errors.push(`${f}: syntax/runtime error: ${e.message}`); }
 }
 const { REASONS, STATUS, SEED_PROJECTS = [], RED_ZONES = [], YELLOW_ZONES = [], window: w } = ctx;
-const MAX_ZONE_KM = 35, TECH = ["solar", "wind", "storage"];
+const MAX_ZONE_KM = 10, TECH = ["solar", "wind", "storage"];
 const inDACH = z => z.lat > 45.7 && z.lat < 55.2 && z.lng > 5.8 && z.lng < 17.3;
 const projects = [...SEED_PROJECTS, ...(w.EXTRA_PROJECTS || [])];
 const zones = [...RED_ZONES, ...(w.EXTRA_RED_ZONES || []), ...YELLOW_ZONES, ...(w.EXTRA_YELLOW_ZONES || [])];
@@ -37,6 +37,7 @@ for (const z of zones) {
   const e = m => errors.push(`zone ${z.id || z.name}: ${m}`);
   if (!z.id || dup(z.id)) e("missing or duplicate id");
   if (!(z.radiusKm > 0 && z.radiusKm <= MAX_ZONE_KM)) e(`radiusKm ${z.radiusKm} not in 1..${MAX_ZONE_KM} (zones must be local)`);
+  if (z.illustrative) e("illustrative zones are not allowed – zones must be sourced and local");
   if (!inDACH(z)) e(`coordinates outside DACH (${z.lat}, ${z.lng})`);
   if (z.techs && z.techs.some(t => !TECH.includes(t))) e(`bad techs ${JSON.stringify(z.techs)}`);
 }

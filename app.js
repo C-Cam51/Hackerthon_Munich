@@ -2,8 +2,8 @@
 // No backend: state lives in localStorage. Data lives in data*.js. Tweak behaviour in CONFIG.
 
 const CONFIG = {
-  startCredits: 0,
-  maxZoneRadiusKm: 35,  // zones larger than this are ignored (a zone must be local, not a whole control area)
+  startCredits: 2,      // demo version starts with two free checks
+  maxZoneRadiusKm: 10,  // zones must be substation-local; larger ones are ignored
   mapBounds: [[45.8, 5.8], [55.1, 17.2]], // DACH
   // similarity scoring for the "speed camera" check
   distance: [{ km: 10, pts: 50 }, { km: 30, pts: 30 }, { km: 60, pts: 10 }],
@@ -15,6 +15,14 @@ const CONFIG = {
   maxMatches: 5,
   redAt: 60,            // score ≥ → red
   yellowAt: 30,         // score ≥ → yellow
+  // demo scenarios for the pitch: polygon corners [lat, lng]
+  demos: [
+    { name: "Solar park Speichersdorf Süd", tech: "solar", mw: 25, operator: "",
+      polygon: [[49.878, 11.765], [49.880, 11.792], [49.866, 11.796], [49.863, 11.770]] },   // next to failed Solarpark Haidenaab (2025)
+    { name: "Solar park Kempten Nord", tech: "solar", mw: 25, operator: "",
+      polygon: [[47.742, 10.300], [47.744, 10.326], [47.731, 10.330], [47.729, 10.303]] },   // no graves within 60 km
+  ],
+  triedHereKm: 10,      // "someone already tried here" if a dead project is this close
   stages: ["Site search", "Grid request", "Permitting", "Built", "Stopped"],
 };
 
@@ -29,8 +37,8 @@ const YELLOWS = [...YELLOW_ZONES, ...(window.EXTRA_YELLOW_ZONES || [])].filter(l
 
 // ---------- State ----------
 const store = {
-  get(k, d) { try { const v = localStorage.getItem("gdp_" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem("gdp_" + k, JSON.stringify(v)); } catch {} },
+  get(k, d) { try { const v = localStorage.getItem("gdp2_" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("gdp2_" + k, JSON.stringify(v)); } catch {} },
 };
 const state = {
   credits: store.get("credits", CONFIG.startCredits),
@@ -39,7 +47,7 @@ const state = {
   pipeline: store.get("pipeline", DEMO_PIPELINE),
 };
 function save() { Object.entries(state).forEach(([k, v]) => store.set(k, v)); }
-window.resetDemo = () => { ["credits", "buried", "interests", "pipeline"].forEach(k => localStorage.removeItem("gdp_" + k)); location.reload(); };
+window.resetDemo = () => { ["credits", "buried", "interests", "pipeline"].forEach(k => localStorage.removeItem("gdp2_" + k)); location.reload(); };
 
 const allProjects = () => [...PROJECTS, ...state.buried];
 const TECH = { solar: "Solar", wind: "Wind", storage: "Storage" };
@@ -102,7 +110,7 @@ function redHtml(z) {
     <p><b>Why blocked:</b> ${esc(z.why)}</p>
     <p><b>Blocked until:</b> ${esc(z.until)}</p>
     ${z.techs ? `<p><b>Applies to:</b> ${z.techs.map(t => TECH[t]).join(", ")} only</p>` : ""}
-    ${z.illustrative ? `<p class="muted">Area approximate / illustrative.</p>` : ""}</div>`;
+    <p class="muted">Area approximate (substation catchment).</p></div>`;
 }
 
 // ---------- Map ----------
@@ -111,7 +119,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18,
 
 const layers = { red: L.layerGroup().addTo(map), yellow: L.layerGroup().addTo(map), graves: L.layerGroup().addTo(map) };
 const yellowCircles = {};
-REDS.forEach(z => L.circle([z.lat, z.lng], { radius: z.radiusKm * 1000, color: "#d62828", weight: 2, fillOpacity: .28 }).bindPopup(redHtml(z)).addTo(layers.red));
+REDS.forEach(z => L.circle([z.lat, z.lng], { radius: z.radiusKm * 1000, color: "#d62828", weight: 2, fillOpacity: .35 }).bindPopup(redHtml(z)).addTo(layers.red));
 YELLOWS.forEach(z => {
   yellowCircles[z.id] = L.circle([z.lat, z.lng], { radius: z.radiusKm * 1000, color: "#c99a00", weight: 2, fillColor: "#f4c20d", fillOpacity: .4 })
     .bindPopup(() => yellowHtml(z)).addTo(layers.yellow);
@@ -137,10 +145,66 @@ function setPin(lat, lng) {
   form.lat.value = lat.toFixed(4); form.lng.value = lng.toFixed(4);
   pin ? pin.setLatLng([lat, lng]) : (pin = L.marker([lat, lng]).addTo(map));
 }
+map.doubleClickZoom.disable();
 map.on("click", e => {
+  if (drawing) {
+    drawPts.push([e.latlng.lat, e.latlng.lng]);
+    clearShape(); drawShape = L.polygon(drawPts, { color: "#1d4ed8", weight: 3, dashArray: "4", fillOpacity: .15 }).addTo(map);
+    drawInfo.textContent = `${drawPts.length} corners · double-click or ✓ to finish`;
+    return;
+  }
   if ($("#mod-reasons").classList.contains("active")) showMod("check");
+  if (!$("#mod-bury").classList.contains("active")) clearShape();
   setPin(e.latlng.lat, e.latlng.lng);
 });
+
+// ---------- Drawing a site (polygon) ----------
+let drawing = false, drawPts = [], drawShape = null;
+const drawBtn = $("#draw-btn"), drawInfo = $("#draw-info");
+function clearShape() { if (drawShape) map.removeLayer(drawShape); drawShape = null; }
+function areaHa(pts) { // shoelace on a local projection
+  const lat0 = pts[0][0] * Math.PI / 180, R = 6371000;
+  const xy = pts.map(([la, ln]) => [ln * Math.PI / 180 * R * Math.cos(lat0), la * Math.PI / 180 * R]);
+  let s = 0; xy.forEach((p, i) => { const q = xy[(i + 1) % xy.length]; s += p[0] * q[1] - q[0] * p[1]; });
+  return Math.abs(s / 2) / 10000;
+}
+function setSite(pts) {
+  clearShape();
+  drawShape = L.polygon(pts, { color: "#1d4ed8", weight: 3, fillOpacity: .25 }).addTo(map);
+  const lat = pts.reduce((s, p) => s + p[0], 0) / pts.length, lng = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  const f = $("#check-form"); f.lat.value = lat.toFixed(4); f.lng.value = lng.toFixed(4);
+  if (pin) { map.removeLayer(pin); pin = null; }
+  drawInfo.textContent = `Site drawn · ${areaHa(pts).toFixed(1)} ha`;
+}
+function stopDrawing() {
+  drawing = false; document.body.classList.remove("drawing");
+  drawBtn.classList.remove("active"); drawBtn.textContent = "✏️ Draw site on map";
+  if (drawPts.length >= 3) setSite(drawPts); else { clearShape(); drawInfo.textContent = "or click the map for a point"; }
+}
+drawBtn.addEventListener("click", () => {
+  if (drawing) return stopDrawing();
+  drawing = true; drawPts = []; clearShape();
+  document.body.classList.add("drawing");
+  drawBtn.classList.add("active"); drawBtn.textContent = "✓ Finish drawing";
+  drawInfo.textContent = "Click the corners of your site";
+});
+map.on("dblclick", e => { if (drawing) { L.DomEvent.stop(e); stopDrawing(); } });
+
+async function runDemo(i) {
+  const d = CONFIG.demos[i], f = $("#check-form");
+  showHost("map"); showMod("check"); if (drawing) stopDrawing();
+  $("#check-result").innerHTML = "";
+  f.pname.value = d.name; f.tech.value = d.tech; f.mw.value = d.mw; f.operator.value = d.operator;
+  map.flyToBounds(L.latLngBounds(d.polygon).pad(6), { duration: 1.2 });
+  await new Promise(r => setTimeout(r, 1300));
+  clearShape();
+  for (let k = 1; k <= d.polygon.length; k++) {   // animate drawing corner by corner
+    clearShape(); drawShape = L.polygon(d.polygon.slice(0, k), { color: "#1d4ed8", weight: 3, fillOpacity: .25 }).addTo(map);
+    await new Promise(r => setTimeout(r, 250));
+  }
+  setSite(d.polygon);
+}
+$$("[data-demo]").forEach(b => b.addEventListener("click", () => runDemo(+b.dataset.demo)));
 
 // ---------- Failure reasons ----------
 let activeReason = null;
@@ -230,18 +294,28 @@ function runCheck(np) {
   const appliesTo = (z, tech) => !z.techs || z.techs.includes(tech);
   const inRed = REDS.find(z => km(np, z) <= z.radiusKm && appliesTo(z, np.tech));
   const inYellow = YELLOWS.find(z => km(np, z) <= z.radiusKm && appliesTo(z, np.tech));
-  const matches = allProjects().map(p => similarity(np, p)).filter(m => band(m) && m.score >= CONFIG.minMatchScore)
+  const matches = allProjects().filter(p => p.status !== "revived").map(p => similarity(np, p)).filter(m => band(m) && m.score >= CONFIG.minMatchScore)
     .sort((a, b) => b.score - a.score).slice(0, CONFIG.maxMatches);
   const top = matches[0]?.score || 0;
+
+  const tried = matches.find(m => m.d <= CONFIG.triedHereKm);
+  const triedHtml = tried ? `<div class="tried">
+      <h4>⚠ Someone already tried here${tried.p.year ? " in " + tried.p.year : ""}</h4>
+      <p><b>${esc(tried.p.name)}</b>, ${tried.d.toFixed(1)} km away · ${STATUS[tried.p.status]}</p>
+      <p>${tags(tried.p.reasons)}</p>
+      <p><b>Why it failed:</b> ${esc(tried.p.text)}</p>
+      ${tried.p.quote ? `<blockquote>„${esc(tried.p.quote)}“</blockquote>` : ""}
+      ${tried.p.source ? `<a href="${esc(tried.p.source)}" target="_blank" rel="noopener">Source ↗</a>` : ""}</div>` : "";
 
   let level, title, body;
   if (inRed) { level = "red"; title = "🔴 Flash! Grid blocked here"; body = `<b>${esc(inRed.name)}</b><br>${esc(inRed.why)}<br><b>Until:</b> ${esc(inRed.until)}`; }
   else if (inYellow) { level = "yellow"; title = "🟡 Capacity expected to free up"; body = `${inYellow.mw} MW from ${esc(inYellow.from)} at <b>${esc(inYellow.name)}</b>. ${interestCount(inYellow)} developers interested.<br>${interestBtn(inYellow)}`; }
-  else if (top >= CONFIG.redAt) { level = "red"; title = "🔴 Flash! Looks like a dead project"; body = "Very similar projects nearby already failed."; }
+  else if (top >= CONFIG.redAt) { level = "red"; title = "🔴 Watch out! This site has a grave"; body = "A very similar project right here has already failed. Check the reasons before you invest."; }
   else if (top >= CONFIG.yellowAt) { level = "yellow"; title = "🟡 Caution"; body = "Similar projects in the region failed. Check the reasons below."; }
-  else { level = "green"; title = "🟢 No known graves nearby"; body = "No similar dead projects in the graveyard. That is no guarantee for a grid connection."; }
+  else { level = "green"; title = "🟢 No dead projects nearby"; body = `No failed projects within ${CONFIG.distance.at(-1).km} km and no blocked grid area. Go ahead: no known graves here.`; }
 
-  out.innerHTML = `<div class="verdict ${level}"><h3>${title}</h3><div>${body}</div></div>
+  const pname = $("#check-form").pname.value.trim();
+  out.innerHTML = `<div class="verdict ${level}">${pname ? `<div class="muted" style="color:inherit;opacity:.85">${esc(pname)}</div>` : ""}<h3>${title}</h3><div>${body}</div>${triedHtml}</div>
     <h4 style="margin:14px 0 4px">Similar dead projects (${matches.length})</h4>
     ${matches.length ? matches.map(m => `<div class="match"><span class="score">${m.score}%</span> · <b>${esc(m.p.name)}</b> ${tags(m.p.reasons)}<br>
       <span class="muted">${m.why.join(" · ")}: ${esc(m.p.text)}</span></div>`).join("") : `<p class="muted">None within ${CONFIG.distance.at(-1).km} km.</p>`}`;

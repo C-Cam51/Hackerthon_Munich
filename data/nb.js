@@ -63,15 +63,15 @@ window.EXTRA_PROJECTS = (window.EXTRA_PROJECTS || []).concat([
     source: "https://www.onetz.de/oberpfalz/parkstein/buergerentscheid-parkstein-gescheitert-61-prozent-votieren-fuer-windkraft-id5507498.html" },
 ]);
 window.EXTRA_RED_ZONES = (window.EXTRA_RED_ZONES || []).concat([
-  { id: "nbr1", name: "Pfeffenhausen storage connection stop", lat: 48.66, lng: 11.97, radiusKm: 10, techs: ["storage"], operator: "Bayernwerk Netz",
+  { id: "nbr1", name: "Pfeffenhausen storage connection stop", lat: 48.66, lng: 11.97, radiusKm: 5, techs: ["storage"], operator: "Bayernwerk Netz",
     why: "Bayernwerk states there is no grid perspective for battery storage at medium/high voltage here; requests are rejected.",
-    until: "No date given", illustrative: true },
+    until: "No date given" },
 ]);
 window.EXTRA_YELLOW_ZONES = (window.EXTRA_YELLOW_ZONES || []).concat([
-  { id: "nby1", name: "New substation Irlbach", lat: 48.84, lng: 12.75, radiusKm: 12, operator: "Bayernwerk Netz", mw: 230, from: "2028", baseInterest: 3,
+  { id: "nby1", name: "New substation Irlbach", lat: 48.84, lng: 12.75, radiusKm: 8, operator: "Bayernwerk Netz", mw: 230, from: "2028", baseInterest: 3,
     note: "New 230 MVA substation (4 transformers) for feed-in from Irlbach, Strasskirchen and Stephansposching; completion planned by 2028." },
-  { id: "nby2", name: "Substation Grafenau renewal", lat: 48.86, lng: 13.40, radiusKm: 12, operator: "Bayernwerk Netz", mw: 120, from: "2026", baseInterest: 2,
+  { id: "nby2", name: "Substation Grafenau renewal", lat: 48.86, lng: 13.40, radiusKm: 8, operator: "Bayernwerk Netz", mw: 120, from: "2026", baseInterest: 2,
     note: "Replacement build with third transformer, one third more capacity (120 MW), completion planned end of 2026." },
-  { id: "nby3", name: "Einspeisesteckdose Niederviehbach", lat: 48.61, lng: 12.39, radiusKm: 15, operator: "Bayernwerk Netz", mw: 112, from: "2025", baseInterest: 4,
+  { id: "nby3", name: "Einspeisesteckdose Niederviehbach", lat: 48.61, lng: 12.39, radiusKm: 8, operator: "Bayernwerk Netz", mw: 112, from: "2025", baseInterest: 4,
     note: "Bundled feed-in point (80 MW tendered, 112 MW PV via overbuilding) in operation Nov 2025; >230 MW requested, so ~3x oversubscribed and many projects left out." },
 ]);

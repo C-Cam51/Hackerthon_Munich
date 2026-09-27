@@ -179,36 +179,30 @@ const SEED_PROJECTS = [
 
 // Red zones: grid blocked. Areas approximate.
 const RED_ZONES = [
-  { id: "r1", name: "E.ON edis 110 kV sub-area (Brandenburg)", lat: 52.45, lng: 13.95, radiusKm: 30,
-    operator: "E.ON edis", why: "Load-side capacity bottleneck – connection of large storage refused, would impair voltage quality. Confirmed by BNetzA (BK6-25-325).",
-    until: "~2034–2036 (grid expansion in approx. 8–10 years)", illustrative: true },
-  { id: "r2", name: "Frankenthal / Ludwigshafen area", lat: 49.53, lng: 8.35, radiusKm: 18,
+  { id: "r2", name: "Frankenthal / Ludwigshafen area", lat: 49.53, lng: 8.35, radiusKm: 6,
     operator: "Pfalzwerke Netz", why: "Overload and voltage issues – 140 MW at a single connection point refused.",
     until: "Unknown – no binding date communicated" },
-  { id: "r3", name: "Kreis Höxter", lat: 51.77, lng: 9.38, radiusKm: 25,
+  { id: "r3", name: "Kreis Höxter", lat: 51.77, lng: 9.38, radiusKm: 8,
     operator: "Avacon", why: "Nearest connection point refused: 'line is full'. No transparent grid data provided.",
     until: "Unknown – in litigation" },
-  { id: "r4", name: "Upper Valais (Wallis)", lat: 46.25, lng: 7.85, radiusKm: 35,
-    operator: "Swissgrid", why: "Large volumes cannot be transported before transmission grid expansion.",
-    until: "2028 at the earliest" },
-  { id: "r5", name: "Davos-Klosters", lat: 46.80, lng: 9.84, radiusKm: 15,
+  { id: "r5", name: "Davos-Klosters", lat: 46.80, lng: 9.84, radiusKm: 8,
     operator: "", why: "Not enough grid capacity to transport the power – several project ideas dropped.",
     until: "Unknown" },
 ];
 
 // Yellow zones: capacity expected to free up. DEMO DATA.
 const YELLOW_ZONES = [
-  { id: "y1", name: "Substation Oldenburg-Kreyenbrück", lat: 53.11, lng: 8.21, radiusKm: 12,
+  { id: "y1", name: "Substation Oldenburg-Kreyenbrück", lat: 53.11, lng: 8.21, radiusKm: 8,
     operator: "EWE Netz", mw: 10, from: "2028", baseInterest: 5 },
-  { id: "y2", name: "Weilrod / Hochtaunus (released reservation)", lat: 50.33, lng: 8.39, radiusKm: 12,
+  { id: "y2", name: "Weilrod / Hochtaunus (released reservation)", lat: 50.33, lng: 8.39, radiusKm: 8,
     operator: "", mw: 20, from: "2027", baseInterest: 3,
     note: "Connection was reserved for the abandoned Niederlauken project." },
-  { id: "y3", name: "Schmelz / Saarlouis connection point", lat: 49.40, lng: 6.90, radiusKm: 12,
+  { id: "y3", name: "Schmelz / Saarlouis connection point", lat: 49.40, lng: 6.90, radiusKm: 8,
     operator: "", mw: 30, from: "2027", baseInterest: 2,
     note: "Connection point assigned to the abandoned Limbach-Dorf project." },
-  { id: "y4", name: "Bavarian Swabia 'feed-in socket' round 2", lat: 48.30, lng: 10.55, radiusKm: 18,
+  { id: "y4", name: "Bavarian Swabia 'feed-in socket' round 2", lat: 48.30, lng: 10.55, radiusKm: 8,
     operator: "LEW Verteilnetz", mw: 15, from: "2028", baseInterest: 7 },
-  { id: "y5", name: "Walschleben substation (expanded)", lat: 51.07, lng: 10.93, radiusKm: 12,
+  { id: "y5", name: "Walschleben substation (expanded)", lat: 51.07, lng: 10.93, radiusKm: 8,
     operator: "Thüringer Energienetze", mw: 12, from: "2027", baseInterest: 1 },
 ];
 

@@ -58,8 +58,18 @@
           <div class="module-body">
             <!-- CHECK -->
             <div id="mod-check" class="mod active">
+              <div class="demo-bar">
+                <span>Demo</span>
+                <button type="button" class="small-btn" data-demo="0">① Risky site</button>
+                <button type="button" class="small-btn" data-demo="1">② Clear site</button>
+                <button type="button" class="small-btn ghost" onclick="resetDemo()">↺ Reset</button>
+              </div>
               <form id="check-form" class="form">
-                <p class="hint">📍 Click the map to select a site.</p>
+                <label>New project<input name="pname" placeholder="e.g. Solar park Musterdorf"></label>
+                <div class="draw-row">
+                  <button type="button" class="small-btn ghost" id="draw-btn">✏️ Draw site on map</button>
+                  <span id="draw-info" class="muted">or click the map for a point</span>
+                </div>
                 <div class="row">
                   <label>Technology
                     <select name="tech"><option value="solar">Solar</option><option value="wind">Wind</option><option value="storage">Storage</option></select>

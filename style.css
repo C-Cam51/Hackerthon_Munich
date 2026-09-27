@@ -135,3 +135,13 @@ dialog h3 { margin: 0; }
   #host-map.active { flex-direction: column; } .module { width: 100%; height: 55%; } #map { min-height: 45%; }
   .layers { display: none; } .mock-pill, .host-search { display: none; }
 }
+
+/* ---------- Demo + drawing ---------- */
+.demo-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; background: #f1f0fb; border: 1px dashed #b9b4e6; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+.demo-bar span { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #5a4fc9; margin-right: 2px; }
+.draw-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.drawing #map { cursor: crosshair; }
+.small-btn.active { background: var(--red); color: #fff; }
+.tried { margin-top: 10px; background: #fff; color: var(--ink); border-radius: 8px; padding: 10px; }
+.tried h4 { margin: 0 0 4px; font-size: 13px; }
+.tried p { margin: 4px 0; font-size: 12px; }

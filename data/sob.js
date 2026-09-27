@@ -31,13 +31,10 @@ window.EXTRA_PROJECTS = (window.EXTRA_PROJECTS || []).concat([
     source: "https://www.traunsteiner-tagblatt.de/region/landkreis-traunstein_artikel,-77-vorranggebiete-fuer-die-windkraft-_arid,28465.html" },
 ]);
 window.EXTRA_RED_ZONES = (window.EXTRA_RED_ZONES || []).concat([
-  { id: "sobr1", name: "Munich region battery storage queue", lat: 48.14, lng: 11.58, radiusKm: 25, techs: ["storage"], operator: "Bayernwerk Netz / SWM Infrastruktur",
-    why: "More than 200 battery storage projects in the Munich area were reported waiting for grid-operator approval in 2026; Bayernwerk cites requested capacity rising from ~1 GW to ~80 GW, and the BNetzA in 2026 upheld a refusal to connect a storage project.",
-    until: "Unclear; depends on federal reform of storage grid-connection rules (KraftNAV / end of first-come-first-served)", illustrative: true },
 ]);
 window.EXTRA_YELLOW_ZONES = (window.EXTRA_YELLOW_ZONES || []).concat([
-  { id: "soby1", name: "LEW Einspeisesteckdose Balzhausen", lat: 48.24, lng: 10.49, radiusKm: 15, operator: "LEW Verteilnetz", mw: 80, from: "2025", baseInterest: 7,
+  { id: "soby1", name: "LEW Einspeisesteckdose Balzhausen", lat: 48.24, lng: 10.49, radiusKm: 8, operator: "LEW Verteilnetz", mw: 80, from: "2025", baseInterest: 7,
     note: "Expanded Balzhausen substation offers 80 MW shared connection; 7 projects (3 PV parks 44 MW, 1 wind 22 MW, 3 batteries) totalling 126 MW were awarded via 60% overbooking. Green Flexibility began building an 80 MWh battery there in Sept 2025." },
-  { id: "soby2", name: "Umspannwerk Maisach expansion", lat: 48.22, lng: 11.26, radiusKm: 15, operator: "Bayernwerk Netz", mw: 0, from: "2030", baseInterest: 3,
+  { id: "soby2", name: "Umspannwerk Maisach expansion", lat: 48.22, lng: 11.26, radiusKm: 8, operator: "Bayernwerk Netz", mw: 0, from: "2030", baseInterest: 3,
     note: "Bayernwerk plans to renew and expand the Maisach substation (Fürstenfeldbruck) to add feed-in capacity for renewables; construction 2027–2030, MW not published." },
 ]);

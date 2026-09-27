@@ -67,9 +67,9 @@ window.EXTRA_PROJECTS = (window.EXTRA_PROJECTS || []).concat([
     source: "https://kaernten.orf.at/stories/3280037/" },
 ]);
 window.EXTRA_RED_ZONES = (window.EXTRA_RED_ZONES || []).concat([
-  { id: "atr1", name: "UW Zurndorf supply area", lat: 47.96, lng: 16.96, radiusKm: 15, operator: "Netz Burgenland",
+  { id: "atr1", name: "UW Zurndorf supply area", lat: 47.96, lng: 16.96, radiusKm: 8, operator: "Netz Burgenland",
     why: "Netz Burgenland states that, due to bottlenecks in upstream grid levels, grid access for larger generation plants in the UW Zurndorf supply area is currently not possible (only restricted access until expansion).",
-    until: "Until upstream grid expansion is completed (no date published)", illustrative: true },
+    until: "Until upstream grid expansion is completed (no date published)" },
 ]);
 window.EXTRA_YELLOW_ZONES = (window.EXTRA_YELLOW_ZONES || []).concat([
 ]);
